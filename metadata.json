@@ -1,0 +1,6 @@
+{
+  "name": "Daily News",
+  "description": "A modern, responsive news website with categories, search, and detailed articles.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
