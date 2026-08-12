@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, Menu, X, Newspaper } from 'lucide-react';
+import { Search, Menu, X, Newspaper, User, LogOut } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 const CATEGORIES = [
   'Politics',
@@ -14,6 +15,16 @@ export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
+  const { currentUser, logout } = useAuth();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/');
+    } catch (error) {
+      console.error('Failed to log out', error);
+    }
+  };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,6 +66,24 @@ export function Navbar() {
           <span className="text-xs font-semibold text-slate-400 uppercase">
             {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' })}
           </span>
+
+          {currentUser ? (
+            <div className="flex items-center gap-4 border-l border-slate-800 pl-6">
+              <Link to="/profile" className="text-xs font-bold text-slate-300 hover:text-white flex items-center gap-1.5 transition-colors">
+                <User className="w-4 h-4" />
+                {currentUser.displayName || 'Profile'}
+              </Link>
+              <button onClick={handleLogout} className="text-xs font-bold text-slate-300 hover:text-white flex items-center gap-1.5 transition-colors">
+                <LogOut className="w-4 h-4" />
+                Logout
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-4 border-l border-slate-800 pl-6">
+              <Link to="/login" className="text-xs font-bold text-slate-300 hover:text-white transition-colors">Login</Link>
+              <Link to="/signup" className="text-xs font-bold bg-blue-600 text-white px-4 py-1.5 rounded-md hover:bg-blue-500 transition-colors">Sign Up</Link>
+            </div>
+          )}
         </div>
 
         {/* Mobile menu button */}
@@ -119,6 +148,46 @@ export function Navbar() {
                 {category}
               </Link>
             ))}
+
+            <div className="mt-4 pt-4 border-t border-slate-200">
+              {currentUser ? (
+                <>
+                  <Link
+                    to="/profile"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="block px-3 py-2 rounded-md hover:text-blue-600 hover:bg-slate-50 transition-colors"
+                  >
+                    Profile ({currentUser.displayName || currentUser.email})
+                  </Link>
+                  <button
+                    onClick={() => {
+                      handleLogout();
+                      setIsMenuOpen(false);
+                    }}
+                    className="block w-full text-left px-3 py-2 rounded-md hover:text-red-600 hover:bg-red-50 transition-colors"
+                  >
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <div className="flex flex-col gap-2 px-3 pt-2">
+                  <Link
+                    to="/login"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="block w-full text-center px-4 py-2 rounded-md border border-slate-200 text-slate-700 hover:bg-slate-50 font-bold transition-colors"
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    to="/signup"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="block w-full text-center px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 font-bold transition-colors"
+                  >
+                    Sign Up
+                  </Link>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}
